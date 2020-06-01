@@ -1,5 +1,7 @@
 #include "inputProcessor.h"
-
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 int main(int argc, char** argv) {
 	if (argc == 2 && !strcmp(argv[1], "/?")) {
 		showHelp();
@@ -24,5 +26,6 @@ int main(int argc, char** argv) {
 	else {
 		invalidInput();
 	}
+	_CrtDumpMemoryLeaks();
 	return 0;
 }

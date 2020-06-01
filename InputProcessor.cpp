@@ -40,11 +40,6 @@ void divide(char* imgPath, int VerticalParts, int HorizontalParts) {
 		return;
 	}
 
-	if (strlen(imgPath) > 10) {
-		printf("File name too long! Try with shorter file name!\n");
-		return;
-	}
-
 	BitMap head;
 	fread(&head.header, sizeof(Header), 1, img);
 	fread(&head.dib, sizeof(DIB), 1, img);
@@ -69,7 +64,7 @@ void divide(char* imgPath, int VerticalParts, int HorizontalParts) {
 	subHead.header.Size = subHead.util.ByteSize + subHead.header.PixelArrayOffset;	
 
 	char* partName = new char[MAX_SIZE];
-	strncpy(partName, imgPath, MAX_SIZE);
+	strcpy(partName, imgPath);
 
 	for (int i = 0; i < VerticalParts; i++)
 		for (int j = 0; j < HorizontalParts; j++) {
@@ -85,13 +80,16 @@ void divide(char* imgPath, int VerticalParts, int HorizontalParts) {
 			fwrite(&subHead.header, sizeof(Header), 1, part);
 			fwrite(&subHead.dib, sizeof(DIB), 1, part);
 			fwrite(ColorTable, sizeof(char), ColorTableSize, part);
-			unsigned char* EachLine = CutPixel(head, subHead, ImgByte, i, HorizontalParts - j - 1);
-			fwrite(EachLine, sizeof(char), subHead.util.ByteSize, part);
-			if (EachLine) delete[] EachLine;
+
+			unsigned char* subImgByte = CutPixel(head, subHead, ImgByte, i, HorizontalParts - j - 1);
+			fwrite(subImgByte, sizeof(char), subHead.util.ByteSize, part);
+
+			if (subImgByte) delete[] subImgByte;
 			fclose(part);
 		}
 
 	fclose(img);
+	if (partName) delete[] partName;
 	if (ColorTable) delete[] ColorTable;
 	if (ImgByte) delete[] ImgByte;
 }
